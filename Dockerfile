@@ -10,6 +10,13 @@ COPY package*.json ./
 # Instala dependencias
 RUN npm install
 
+# Genera el cliente de Prisma
+RUN npx prisma generate
+
+# (Opcional) Ejecuta migraciones al iniciar el contenedor
+# Esto creará las tablas en PostgreSQL según tu esquema
+# RUN npx prisma migrate deploy
+
 # Copia el resto del proyecto
 COPY . .
 
