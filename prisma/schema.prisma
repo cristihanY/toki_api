@@ -1,0 +1,99 @@
+// ─── Generador & datasource ───────────────────────────────────────────────────
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum MemberStatus {
+  ONLINE
+  OFFLINE
+  AWAY
+  BUSY
+}
+
+enum MembershipState {
+  ACTIVE
+  LEFT
+  BANNED
+}
+
+enum JoinedType {
+  INVITE
+  JOIN
+}
+
+enum MessageType {
+  CONTACT
+  CHANNEL
+}
+
+enum FileType {
+  TEXT
+  IMAGE
+  AUDIO
+  VIDEO
+}
+
+model User {
+  id            Int           @id @default(autoincrement())
+  identifier    String        @unique
+  user_name     String        @unique
+  display_name  String
+  email         String?        @unique
+  phone_number  String?
+  location      String?
+  status        MemberStatus  @default(ONLINE)
+  password_hash String?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+}
+
+model Channel {
+  id            Int      @id @default(autoincrement())
+  name          String   @unique
+  display_name  String?
+  owner_user_id Int
+  isPublic      Boolean  @default(true)
+  description   String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @default(now()) @updatedAt
+}
+
+model Contact {
+  id                  Int      @id @default(autoincrement())
+  contact_one_user_id Int
+  contact_two_user_id Int
+  oneAccepted         Boolean  @default(true)
+  twoAccepted         Boolean  @default(false)
+  createdAt           DateTime @default(now())
+}
+
+model ChannelMember {
+  id               Int             @id @default(autoincrement())
+  channelId        Int
+  userId           Int
+  status           MemberStatus    @default(ONLINE)
+  membership_state MembershipState @default(ACTIVE)
+  joinedType       JoinedType      @default(JOIN)
+  joinedAt         DateTime        @default(now())
+  isAccepted       Boolean         @default(true)
+}
+
+model Message {
+  id        Int         @id @default(autoincrement())
+  senderId  Int
+  contactId Int?
+  channelId Int?
+  type      MessageType
+  fileType  FileType    @default(TEXT)
+  content   String?
+  fileUrl   String?
+  fileData  Bytes?
+  createdAt DateTime    @default(now())
+}
+
